@@ -4,8 +4,20 @@ import SignUp from './ui/sign_up/SignUp';
 import UserApi from '../../entities/user/api/UserApi';
 import AppContext from '../../features/_context/AppContext';
 
+const PageModes = {
+    signIn: 'signIn',
+    signUp: 'signUp',
+    profile: 'profile',
+    forgotPassword: 'forgotPassword',
+} as const;
+
+type PageModes = (typeof PageModes)[keyof typeof PageModes];
+
 export default function Auth() {
-    const [pageMode, setPageMode] = useState<string>("signIn");
+    const { user } = useContext(AppContext);
+
+    const [pageMode, setPageMode] = useState<PageModes>(user ? PageModes.profile : PageModes.signIn);
+
 
     return <div className='auth-container'>
         <div className='auth-form'>
@@ -25,7 +37,7 @@ function SignIn() {
     const [login, setLogin] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [isFormValid, setFormValid] = useState<boolean>(false);
-    const {setUser} = useContext(AppContext);
+    const { setUser } = useContext(AppContext);
 
     useEffect(() => {
         setFormValid(
@@ -36,12 +48,12 @@ function SignIn() {
 
     const signInClick = () => {
         UserApi.aunthenticate(login, password)
-        .then(setUser)
-        .catch(err => {
-            if(err === 401){
-                alert("У вході відмовлено. Перевірьте введені дані")
-            }
-        });
+            .then(setUser)
+            .catch(err => {
+                if (err === 401) {
+                    alert("У вході відмовлено. Перевірьте введені дані")
+                }
+            });
     };
 
     return <div className='auth-form-content mx-3 my-4'>
