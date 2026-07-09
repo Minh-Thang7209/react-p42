@@ -5,14 +5,14 @@ import Counter from '../../widgets/counter/Counter';
 import type ICartItem from '../../entities/cart/model/ICartItem';
 
 export default function Cart() {
-    const {cart} = useContext(AppContext);
+    const { cart } = useContext(AppContext);
 
     return <div className='row mx-3'>
         <div className='col col-8'>
             <h1>Shopping Cart</h1>
-            {cart.cartItems.length == 0 
-            ? <p>Cart is empty</p>
-            : cart.cartItems.map(ci => <CartItemView key={ci.product.id} ci={ci} />)}
+            {cart.cartItems.length == 0
+                ? <p>Cart is empty</p>
+                : cart.cartItems.map(ci => <CartItemView key={ci.product.id} ci={ci} />)}
         </div>
         <div className='col col-4'>
             <div className='mt-2 bg-light border p-0'>
@@ -35,53 +35,53 @@ export default function Cart() {
     </div>;
 }
 
-function CartItemView({ci}:{ci:ICartItem}) {
-    const {cart, setCart} = useContext(AppContext);
+function CartItemView({ ci }: { ci: ICartItem }) {
+    const { cart, setCart } = useContext(AppContext);
 
-    const onQuantityChange = (quantity:number) => {
-        if(quantity > 0) {
+    const onQuantityChange = (quantity: number) => {
+        if (quantity > 0) {
             ci.quantity = quantity;
             // оскільки TS мова референсна, то сі безпосередньо є 
             // посиланням на об'єкт у самому кошику. Зміна кількості
             // через нього вплине на кошик. АЛЕ зміна цього об'єкту не 
             // відстежується React, для реакції необхідна зміна стану.
 
-            setCart({...cart});
+            setCart({ ...cart });
             // setCart(cart) - не буде працювати, оскільки React
             // відстежує зміни за посиланням, а зміни у вмісті масиву
             // не змінюють сам масив. Для ефекту необхідно створити 
             // новий масив/об'єкт з копією даного [...cart]/{...cart}
         }
         else {
-            if(confirm("Delete?")) {
-                /*
-                    Д.З. Реалізувати видалення позиції з кошику
-                    при зменшенні його кількості до 0
-                    з попереднім запитом до користувача про підтвердження дії
-                */
+            if (confirm("Delete?")) {
+                cart.cartItems = cart.cartItems.filter(
+                    item => item.product.id !== ci.product.id
+                );
+
+                setCart({ ...cart });
             }
         }
     }
     const fullPrice = ci.product.price * ci.quantity;
 
     return <div className='row mb-3'>
-    <div className='col col-2'>
-        <img src={ci.product.imageUrl} className='w-100' alt={ci.product.name} />
-    </div>
-    <div className='col col-5 col-sm-3'>{ci.product.name}</div>
-    <div className='col col-1 col-sm-2 text-center'>{ci.product.price.pad2()}</div>
-    <div className='col col-3 text-center'>
-        <Counter 
-            initialQuantity={ci.quantity}
-            onChange={onQuantityChange} />                    
-    </div>
-    <div className='col col-1 col-sm-2 text-center'>
-        <span className='position-relative'>
-            {ci.price.pad2()}
-            {ci.price < fullPrice && <div className='strike-ci-price'>{fullPrice.pad2()}</div>}
-        </span>
-    </div>
-</div>;
+        <div className='col col-2'>
+            <img src={ci.product.imageUrl} className='w-100' alt={ci.product.name} />
+        </div>
+        <div className='col col-5 col-sm-3'>{ci.product.name}</div>
+        <div className='col col-1 col-sm-2 text-center'>{ci.product.price.pad2()}</div>
+        <div className='col col-3 text-center'>
+            <Counter
+                initialQuantity={ci.quantity}
+                onChange={onQuantityChange} />
+        </div>
+        <div className='col col-1 col-sm-2 text-center'>
+            <span className='position-relative'>
+                {ci.price.pad2()}
+                {ci.price < fullPrice && <div className='strike-ci-price'>{fullPrice.pad2()}</div>}
+            </span>
+        </div>
+    </div>;
 }
 /*
 Д.З. На сторінці кошику реалізувати повідомлення:

@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import './ui/Auth.css';
 import SignUp from './ui/sign_up/SignUp';
+import UserApi from '../../entities/user/api/UserApi';
+import AppContext from '../../features/_context/AppContext';
 
 export default function Auth() {
     const [pageMode, setPageMode] = useState<string>("signIn");
@@ -23,6 +25,7 @@ function SignIn() {
     const [login, setLogin] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [isFormValid, setFormValid] = useState<boolean>(false);
+    const {setUser} = useContext(AppContext);
 
     useEffect(() => {
         setFormValid(
@@ -32,7 +35,13 @@ function SignIn() {
     }, [login, password]);
 
     const signInClick = () => {
-
+        UserApi.aunthenticate(login, password)
+        .then(setUser)
+        .catch(err => {
+            if(err === 401){
+                alert("У вході відмовлено. Перевірьте введені дані")
+            }
+        });
     };
 
     return <div className='auth-form-content mx-3 my-4'>
@@ -50,18 +59,10 @@ function SignIn() {
                 value={password} onChange={e => setPassword(e.target.value)}
                 aria-label="Password" aria-describedby="password-addon" />
         </div>
-<<<<<<< HEAD
 
         <button className={`btn ${isFormValid ? 'btn-primary' : 'btn-secondary'}`}
             onClick={isFormValid ? signInClick : undefined}>
             Вхід
-=======
-        
-        <button 
-            className={`btn ${isFormValid ? 'btn-primary' : 'btn-secondary'}`}
-            onClick={isFormValid ? signInClick : undefined}>
-                Вхід
->>>>>>> fca8381fd0f2a630875965682be907c14684d76a
         </button>
     </div>;
 }
