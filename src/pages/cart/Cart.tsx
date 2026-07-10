@@ -29,19 +29,21 @@ export default function Cart() {
                 <h3 className='bg-body-tertiary border-bottom py-2 text-center'>Order summary</h3>
                 <div className='d-flex justify-content-between mx-2 mb-2'>
                     <span>Subtotal</span>
-                    <b>{subtotal.pad2()}</b>
+                    <span className='summary-price'>
+                        {discount > 0 && (
+                            <span className="summary-old-price">
+                                {discount.pad2()}
+                            </span>
+                        )}
+                        <b>{subtotal.pad2()}</b>
+                    </span>
+
+
                 </div>
                 <div className='d-flex justify-content-between mx-2 mb-3'>
                     <span>Delivery</span>
                     <b>{cart.delivery}</b>
                 </div>
-
-                {discount > 0 && (
-                    <div className='d-flex justify-content-between mx-2 mb-2 text-success'>
-                        <span>Discount</span>
-                        <b>-{discount.pad2()}</b>
-                    </div>
-                )}
                 <div className='d-flex justify-content-between px-2 mb-1 border-top py-2'>
                     <span>Total</span>
                     <b>{cart.price.pad2()}</b>

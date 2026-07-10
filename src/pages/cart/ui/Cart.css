@@ -6,3 +6,16 @@
     text-decoration: line-through;
     color: gray;
 }
+
+.summary-price {
+    position: relative;
+    display: inline-block;
+}
+.summary-old-price {
+    position: absolute;
+    right: 0;
+    top: -.75em;
+    font-size: smaller;
+    text-decoration: line-through;
+    color: gray;
+}
