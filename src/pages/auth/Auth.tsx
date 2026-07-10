@@ -3,6 +3,8 @@ import './ui/Auth.css';
 import SignUp from './ui/sign_up/SignUp';
 import UserApi from '../../entities/user/api/UserApi';
 import AppContext from '../../features/_context/AppContext';
+import Profile from './ui/profile/Profile';
+import { rememberUser } from '../../entities/user/lib/UserLib';
 
 const PageModes = {
     signIn: 'signIn',
@@ -19,21 +21,33 @@ export default function Auth() {
     const [pageMode, setPageMode] = useState<PageModes>(user ? PageModes.profile : PageModes.signIn);
 
 
-    return <div className='auth-container'>
+    return user ? <Profile /> : <div className='auth-container'>
         <div className='auth-form'>
             <h2 className='auth-header'>
-                {pageMode == "signIn" ? "Форма входу" : "Реєстрація"}
+                {
+                    pageMode == PageModes.signIn
+                        ? "Форма входу"
+                        : pageMode == PageModes.signUp
+                            ? "Реєстрація"
+                            : "Забув пароль"
+                }
             </h2>
             <div className='d-flex justify-content-between mx-3 gap-3'>
-                <button className={`flex-1 btn ${pageMode == "signIn" ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setPageMode("signIn")}>Вхід</button>
-                <button className={`flex-1 btn ${pageMode == "signUp" ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setPageMode("signUp")}>Реєстрація</button>
+                <button className={`flex-1 btn ${pageMode == PageModes.signIn ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setPageMode(PageModes.signIn)}>Вхід</button>
+                <button className={`flex-1 btn ${pageMode == PageModes.signUp ? 'btn-primary' : 'btn-secondary'}`} onClick={() => setPageMode(PageModes.signUp)}>Реєстрація</button>
             </div>
-            {pageMode == "signIn" ? <SignIn /> : <SignUp />}
+            {
+                pageMode == PageModes.signIn
+                    ? <SignIn onForgotPassword={() => setPageMode(PageModes.forgotPassword)} />
+                    : pageMode == PageModes.signUp
+                        ? <SignUp />
+                        : <ForgotPassword />
+            }
         </div>
     </div>;
 }
 
-function SignIn() {
+function SignIn({ onForgotPassword }: { onForgotPassword: () => void }) {
     const [login, setLogin] = useState<string>("");
     const [password, setPassword] = useState<string>("");
     const [isFormValid, setFormValid] = useState<boolean>(false);
@@ -48,7 +62,11 @@ function SignIn() {
 
     const signInClick = () => {
         UserApi.aunthenticate(login, password)
-            .then(setUser)
+            .then(u => {
+                // if (remberMe)
+                rememberUser(u);
+                setUser(u);
+            })
             .catch(err => {
                 if (err === 401) {
                     alert("У вході відмовлено. Перевірьте введені дані")
@@ -76,7 +94,61 @@ function SignIn() {
             onClick={isFormValid ? signInClick : undefined}>
             Вхід
         </button>
+        <div className="mt-3 text-center">
+            <button
+                className="btn btn-link p-0"
+                onClick={onForgotPassword}
+            >
+                Забув пароль?
+            </button>
+        </div>
     </div>;
+}
+
+function ForgotPassword() {
+    const [email, setEmail] = useState("");
+    const [birthDate, setBirthDate] = useState("");
+
+    const isFormValid =
+        email.trim() !== "" &&
+        birthDate.trim() !== "";
+
+    return (
+        <div className='auth-form-content mx-3 my-4'>
+            <div className="input-group mb-3">
+                <span className="input-group-text">
+                    <i className="bi bi-envelope"></i>
+                </span>
+                <input
+                    className="form-control"
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                />
+            </div>
+
+            <div className="input-group mb-3">
+                <span className="input-group-text">
+                    <i className="bi bi-calendar"></i>
+                </span>
+                <input
+                    className="form-control"
+                    type="date"
+                    value={birthDate}
+                    onChange={e => setBirthDate(e.target.value)}
+                />
+            </div>
+
+            <button
+               className={`btn ${isFormValid ? "btn-primary" : "btn-secondary"}`}
+                disabled={!isFormValid}
+                onClick={() => alert(`Відновлення паролю для ${email} з датою народження ${birthDate}`)}
+            >
+                Відновити пароль
+            </button>
+        </div>
+    );
 }
 
 /*
