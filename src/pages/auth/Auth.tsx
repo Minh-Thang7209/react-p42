@@ -150,7 +150,6 @@ function ForgotPassword() {
         </div>
     );
 }
-
 /*
 Робота з формами на прикладі задач "Auth"
 
