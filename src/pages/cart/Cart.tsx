@@ -6,7 +6,17 @@ import type ICartItem from '../../entities/cart/model/ICartItem';
 
 export default function Cart() {
     const { cart } = useContext(AppContext);
+    const subtotal = cart.cartItems.reduce(
+        (acc, x) => acc + x.price,
+        0
+    );
 
+    const originalTotal = cart.cartItems.reduce(
+        (acc, x) => acc + x.product.price * x.quantity,
+        0
+    );
+
+    const discount = originalTotal - subtotal;
     return <div className='row mx-3'>
         <div className='col col-8'>
             <h1>Shopping Cart</h1>
@@ -19,12 +29,19 @@ export default function Cart() {
                 <h3 className='bg-body-tertiary border-bottom py-2 text-center'>Order summary</h3>
                 <div className='d-flex justify-content-between mx-2 mb-2'>
                     <span>Subtotal</span>
-                    <b>{cart.cartItems.reduce((acc, x) => acc + x.price, 0.0).pad2()}</b>
+                    <b>{subtotal.pad2()}</b>
                 </div>
                 <div className='d-flex justify-content-between mx-2 mb-3'>
                     <span>Delivery</span>
                     <b>{cart.delivery}</b>
                 </div>
+
+                {discount > 0 && (
+                    <div className='d-flex justify-content-between mx-2 mb-2 text-success'>
+                        <span>Discount</span>
+                        <b>-{discount.pad2()}</b>
+                    </div>
+                )}
                 <div className='d-flex justify-content-between px-2 mb-1 border-top py-2'>
                     <span>Total</span>
                     <b>{cart.price.pad2()}</b>
